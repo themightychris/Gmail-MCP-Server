@@ -619,6 +619,7 @@ async function main() {
                     const to = headers.find(h => h.name?.toLowerCase() === 'to')?.value || '';
                     const date = headers.find(h => h.name?.toLowerCase() === 'date')?.value || '';
                     const threadId = response.data.threadId || '';
+                    const labelIds = response.data.labelIds || [];
 
                     // Extract email content using the recursive function
                     const { text, html } = extractEmailContent(response.data.payload as GmailMessagePart || {});
@@ -664,7 +665,7 @@ async function main() {
                         content: [
                             {
                                 type: "text",
-                                text: `Thread ID: ${threadId}\nSubject: ${subject}\nFrom: ${from}\nTo: ${to}\nDate: ${date}\n\n${contentTypeNote}${body}${attachmentInfo}`,
+                                text: `Thread ID: ${threadId}\nLabels: ${labelIds.join(', ')}\nSubject: ${subject}\nFrom: ${from}\nTo: ${to}\nDate: ${date}\n\n${contentTypeNote}${body}${attachmentInfo}`,
                             },
                         ],
                     };
@@ -690,6 +691,8 @@ async function main() {
                             const headers = detail.data.payload?.headers || [];
                             return {
                                 id: msg.id,
+                                threadId: msg.threadId,
+                                labelIds: detail.data.labelIds || [],
                                 subject: headers.find(h => h.name === 'Subject')?.value || '',
                                 from: headers.find(h => h.name === 'From')?.value || '',
                                 date: headers.find(h => h.name === 'Date')?.value || '',
@@ -702,7 +705,7 @@ async function main() {
                             {
                                 type: "text",
                                 text: results.map(r =>
-                                    `ID: ${r.id}\nSubject: ${r.subject}\nFrom: ${r.from}\nDate: ${r.date}\n`
+                                    `ID: ${r.id}\nThread ID: ${r.threadId}\nLabels: ${r.labelIds.join(', ')}\nSubject: ${r.subject}\nFrom: ${r.from}\nDate: ${r.date}\n`
                                 ).join('\n'),
                             },
                         ],
